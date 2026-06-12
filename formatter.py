@@ -4,7 +4,7 @@ import time
 def format_news_message(ai_summary: str | None, news_count: int) -> str:
     """将 AI 摘要格式化为 QQ 群消息"""
     timestamp = time.strftime("%Y-%m-%d %H:%M")
-    header = f"📰 每日新闻摘要 ({timestamp})\n{'─' * 30}\n"
+    header = f"📰 每日新闻摘要 ({timestamp})\n{'▔' * 20}\n"
 
     if ai_summary is None:
         body = "⚠️ 新闻处理失败，请稍后重试"
@@ -13,7 +13,7 @@ def format_news_message(ai_summary: str | None, news_count: int) -> str:
     else:
         body = ai_summary
 
-    footer = f"\n{'─' * 30}\n共 {news_count} 条新闻 | 发送于 {time.strftime('%H:%M')}"
+    footer = f"\n{'▔' * 20}\n📊 共 {news_count} 条新闻 | {time.strftime('%H:%M')}"
 
     text = header + body + footer
     return text
