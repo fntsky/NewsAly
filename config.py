@@ -9,7 +9,7 @@ CONFIG_EXAMPLE = {
     "openai_api_key": "sk-your-key-here",
     "openai_base_url": "https://api.deepseek.com",
     "openai_model": "deepseek-chat",
-    "push_time_hour": 12,
+    "push_time_hour": 22,
     "push_time_minute": 0,
     "max_news_items": 50,
 }

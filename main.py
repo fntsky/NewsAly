@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys
 import threading
 import time
 
@@ -7,8 +8,9 @@ import requests
 import websockets
 
 from news_fetcher import fetch_news
-from ai_processor import summarize_news
-from formatter import format_news_message, get_help_message
+from ai_processor import summarize_news, summarize_ai_news
+from formatter import format_news_message, format_ai_news_message, get_help_message
+from ai_source_fetcher import fetch_ai_sources
 from config import (
     GROUP_ID, API_URL, WS_URL, RSS_URL,
     PUSH_TIME_HOUR, PUSH_TIME_MINUTE, MAX_NEWS_ITEMS,
@@ -52,7 +54,7 @@ bot = OneBotAPI(API_URL)
 self_qq = None
 
 
-def push_news():
+def push_news(send: bool = True):
     """获取新闻、AI处理、推送"""
     print("[推送] 开始获取新闻...")
     items = fetch_news(RSS_URL, MAX_NEWS_ITEMS)
@@ -63,9 +65,34 @@ def push_news():
 
     print(f"[推送] 获取到 {len(items)} 条新闻，正在 AI 处理...")
     ai_result = summarize_news(items)
+    text1 = format_news_message(ai_result, len(items))
 
-    text = format_news_message(ai_result, len(items))
-    bot.send_group_message(GROUP_ID, text)
+    if send:
+        bot.send_group_message(GROUP_ID, text1)
+    else:
+        print("\n" + "=" * 40)
+        print("【消息1：每日新闻摘要】")
+        print(text1)
+        print("=" * 40)
+
+    print("[推送] 开始获取 AI 资讯...")
+    ai_raw = fetch_ai_sources()
+    if not ai_raw:
+        print("[推送] 无 AI 资讯来源，跳过第二条消息")
+        print("[推送] 完成")
+        return
+
+    ai_result = summarize_ai_news(ai_raw)
+    text2 = format_ai_news_message(ai_result)
+
+    if send:
+        bot.send_group_message(GROUP_ID, text2)
+    else:
+        print("\n" + "=" * 40)
+        print("【消息2：AI 资讯日报】")
+        print(text2)
+        print("=" * 40)
+
     print("[推送] 完成")
 
 
@@ -156,6 +183,12 @@ def run_websocket():
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        print("[测试模式] 执行一次完整流程，不发送 QQ 消息")
+        print(f"[配置] 推送时间: 每日 {PUSH_TIME_HOUR}:{PUSH_TIME_MINUTE:02d}")
+        push_news(send=False)
+        return
+
     print(f"[配置] 目标群: {GROUP_ID}")
     print(f"[配置] API地址: {API_URL}")
     print(f"[配置] WebSocket: {WS_URL}")
