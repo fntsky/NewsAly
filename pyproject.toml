@@ -1,0 +1,10 @@
+[project]
+name = "newsget"
+version = "0.1.0"
+description = "AI 新闻推送机器人 - Google News RSS"
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.33.1",
+    "websockets>=14.0",
+    "feedparser>=6.0.11",
+]

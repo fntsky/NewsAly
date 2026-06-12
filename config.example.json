@@ -1,0 +1,11 @@
+{
+    "group_id": 123456789,
+    "api_port": 3000,
+    "rss_url": "https://news.google.com/rss",
+    "openai_api_key": "sk-your-key-here",
+    "openai_base_url": "https://api.deepseek.com",
+    "openai_model": "deepseek-chat",
+    "push_time_hour": 12,
+    "push_time_minute": 0,
+    "max_news_items": 50
+}
