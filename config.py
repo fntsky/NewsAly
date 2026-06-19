@@ -33,3 +33,12 @@ OPENAI_MODEL = config.get("openai_model", CONFIG_EXAMPLE["openai_model"])
 PUSH_TIME_HOUR = config.get("push_time_hour", 12)
 PUSH_TIME_MINUTE = config.get("push_time_minute", 0)
 MAX_NEWS_ITEMS = config.get("max_news_items", 50)
+
+IMAGE_WIDTH = 800
+IMAGE_PADDING = 40
+_default_font = str(Path(__file__).parent / "fonts" / "NotoSansCJKsc-Regular.otf")
+if not Path(_default_font).exists():
+    _fallback = "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf"
+    if Path(_fallback).exists():
+        _default_font = _fallback
+FONT_PATH = config.get("font_path", _default_font)

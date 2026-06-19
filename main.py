@@ -9,7 +9,13 @@ import websockets
 
 from news_fetcher import fetch_news
 from ai_processor import summarize_news, summarize_ai_news
-from formatter import format_news_message, format_ai_news_message, get_help_message
+from formatter import (
+    format_news_message,
+    format_ai_news_message,
+    save_news_image,
+    save_ai_news_image,
+    get_help_message,
+)
 from ai_source_fetcher import fetch_ai_sources
 from config import (
     GROUP_ID, API_URL, WS_URL, RSS_URL,
@@ -65,15 +71,16 @@ def push_news(send: bool = True):
 
     print(f"[推送] 获取到 {len(items)} 条新闻，正在 AI 处理...")
     ai_result = summarize_news(items)
-    text1 = format_news_message(ai_result, len(items))
+    msg1 = format_news_message(ai_result, len(items))
 
     if send:
-        bot.send_group_message(GROUP_ID, text1)
+        bot.send_group_message(GROUP_ID, msg1)
     else:
-        print("\n" + "=" * 40)
-        print("【消息1：每日新闻摘要】")
-        print(text1)
-        print("=" * 40)
+        path = save_news_image(ai_result, "test_news.png", len(items))
+        if path:
+            print(f"[测试] 新闻卡片已保存到: {path}")
+        else:
+            print("[测试] 新闻卡片生成失败")
 
     print("[推送] 开始获取 AI 资讯...")
     ai_raw = fetch_ai_sources()
@@ -83,15 +90,16 @@ def push_news(send: bool = True):
         return
 
     ai_result = summarize_ai_news(ai_raw)
-    text2 = format_ai_news_message(ai_result)
+    msg2 = format_ai_news_message(ai_result)
 
     if send:
-        bot.send_group_message(GROUP_ID, text2)
+        bot.send_group_message(GROUP_ID, msg2)
     else:
-        print("\n" + "=" * 40)
-        print("【消息2：AI 资讯日报】")
-        print(text2)
-        print("=" * 40)
+        path = save_ai_news_image(ai_result, "test_ai_news.png")
+        if path:
+            print(f"[测试] AI 资讯卡片已保存到: {path}")
+        else:
+            print("[测试] AI 资讯卡片生成失败")
 
     print("[推送] 完成")
 
