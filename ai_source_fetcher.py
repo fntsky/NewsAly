@@ -37,15 +37,30 @@ def fetch_bilibili_today(uid: int = BILIBILI_UID) -> str:
             vlist = data["data"]["list"]["vlist"]
             today_videos = [v for v in vlist if _is_today(v["created"])]
             if today_videos:
+                URL_RE = re.compile(r"https?://[^\s]+")
                 lines = []
                 for v in today_videos:
                     lines.append(f"【{v['title']}】")
                     if v.get("description"):
                         lines.append(v["description"])
                     lines.append(f"https://www.bilibili.com/video/{v['bvid']}")
+                    desc = v.get("description", "")
+                    urls = URL_RE.findall(desc)
+                    if urls:
+                        for u in urls:
+                            text = _fetch_url_text(u)
+                            if text:
+                                lines.append(f"[引用: {u}]\n{text}")
                     lines.append("---")
                 result = "\n".join(lines)
                 print(f"[B站] 获取到 {len(today_videos)} 个今日视频")
+                for v in today_videos:
+                    print(f"  - {v['title']}")
+                    desc = v.get("description", "")
+                    urls = URL_RE.findall(desc)
+                    if urls:
+                        for u in urls:
+                            print(f"    {u}")
                 return result
             return "今日无更新视频"
     except Exception as e:
@@ -104,6 +119,32 @@ def fetch_wechat_article(url: str = WECHAT_URL) -> str:
         return ""
     except Exception as e:
         print(f"[公众号] 请求失败: {e}")
+        return ""
+
+
+def _fetch_url_text(url: str, timeout: int = 10) -> str:
+    try:
+        resp = requests.get(
+            url,
+            headers={"User-Agent": MOBILE_UA},
+            timeout=timeout,
+        )
+        resp.encoding = resp.apparent_encoding or "utf-8"
+        html = resp.text
+        text = re.sub(r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL)
+        text = re.sub(r"<style[^>]*>.*?</style>", "", text, flags=re.DOTALL)
+        text = re.sub(r"<br\s*/?>", "\n", text)
+        text = re.sub(r"</p>", "\n", text)
+        text = re.sub(r"<[^>]+>", "", text)
+        text = re.sub(r"&nbsp;", " ", text)
+        text = re.sub(r"&lt;", "<", text)
+        text = re.sub(r"&gt;", ">", text)
+        text = re.sub(r"&amp;", "&", text)
+        text = re.sub(r"&quot;", '"', text)
+        text = re.sub(r"\n{3,}", "\n\n", text).strip()
+        return text
+    except Exception as e:
+        print(f"  [警告] 获取链接失败 {url}: {e}")
         return ""
 
 
