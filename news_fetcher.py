@@ -11,27 +11,30 @@ class NewsItem:
     source: str = ""
 
 
-def fetch_news(rss_url: str, max_items: int = 50) -> list[NewsItem]:
-    """从 Google News RSS 抓取新闻"""
-    feed = feedparser.parse(rss_url)
-
-    if feed.bozo and not feed.entries:
-        print(f"[错误] RSS 解析失败: {feed.bozo_exception}")
-        return []
-
+def fetch_news(rss_urls: list[str], max_items: int = 50) -> list[NewsItem]:
+    """从多个 RSS 源抓取新闻"""
     items: list[NewsItem] = []
-    for entry in feed.entries[:max_items]:
-        source = ""
-        if hasattr(entry, "source") and hasattr(entry.source, "title"):
-            source = entry.source.title
 
-        items.append(NewsItem(
-            title=entry.get("title", ""),
-            link=entry.get("link", ""),
-            summary=entry.get("summary", ""),
-            pub_date=entry.get("published", ""),
-            source=source,
-        ))
+    for rss_url in rss_urls:
+        print(f"[抓取] 正在解析 RSS: {rss_url}")
+        feed = feedparser.parse(rss_url)
+
+        if feed.bozo and not feed.entries:
+            print(f"[错误] RSS 解析失败: {feed.bozo_exception}")
+            continue
+
+        for entry in feed.entries[:max_items]:
+            source = ""
+            if hasattr(entry, "source") and hasattr(entry.source, "title"):
+                source = entry.source.title
+
+            items.append(NewsItem(
+                title=entry.get("title", ""),
+                link=entry.get("link", ""),
+                summary=entry.get("summary", ""),
+                pub_date=entry.get("published", ""),
+                source=source,
+            ))
 
     print(f"[抓取] 从 RSS 获取到 {len(items)} 条新闻")
     return items

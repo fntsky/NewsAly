@@ -18,7 +18,7 @@ from formatter import (
 )
 from ai_source_fetcher import fetch_ai_sources
 from config import (
-    GROUP_ID, API_URL, WS_URL, RSS_URL,
+    GROUP_ID, API_URL, WS_URL, RSS_URLS,
     PUSH_TIME_HOUR, PUSH_TIME_MINUTE, MAX_NEWS_ITEMS,
 )
 
@@ -63,7 +63,7 @@ self_qq = None
 def push_news(send: bool = True):
     """获取新闻、AI处理、推送"""
     print("[推送] 开始获取新闻...")
-    items = fetch_news(RSS_URL, MAX_NEWS_ITEMS)
+    items = fetch_news(RSS_URLS, MAX_NEWS_ITEMS)
 
     if not items:
         print("[推送] 未获取到新闻，跳过")
@@ -200,7 +200,8 @@ def main():
     print(f"[配置] 目标群: {GROUP_ID}")
     print(f"[配置] API地址: {API_URL}")
     print(f"[配置] WebSocket: {WS_URL}")
-    print(f"[配置] RSS: {RSS_URL}")
+    for i, url in enumerate(RSS_URLS, 1):
+        print(f"[配置] RSS源{i}: {url}")
     print(f"[配置] 推送时间: 每日 {PUSH_TIME_HOUR}:{PUSH_TIME_MINUTE:02d}")
     print(f"[配置] 最大新闻数: {MAX_NEWS_ITEMS}")
 

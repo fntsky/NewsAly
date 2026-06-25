@@ -1,7 +1,10 @@
 {
     "group_id": 123456789,
     "api_port": 3000,
-    "rss_url": "https://news.google.com/rss",
+    "rss_urls": [
+        "https://news.google.com/rss",
+        "https://plink.anyfeeder.com/zaobao/realtime/china"
+    ],
     "openai_api_key": "sk-your-key-here",
     "openai_base_url": "https://api.deepseek.com",
     "openai_model": "deepseek-chat",
